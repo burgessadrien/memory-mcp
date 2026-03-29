@@ -1,0 +1,19 @@
+[project]
+name = "memory-mcp"
+version = "0.1.0"
+description = "A Model Context Protocol server acting as long-term memory for AI agents."
+readme = "README.txt"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp>=1.0.0",
+    "chromadb>=0.5.0",
+    "sentence-transformers>=3.0.0"
+]
+
+[project.scripts]
+memory-mcp = "memory_mcp.server:main"
+memory-mcp-stats = "memory_mcp.server:print_stats"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"

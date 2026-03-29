@@ -1,0 +1,18 @@
+# Docker Ignore File
+
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore local database stores and test data
+memory_data/
+test_memory_data/
+
+# Ignore IDE files
+.vscode/
+.idea/
+.git/

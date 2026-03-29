@@ -1,0 +1,3 @@
+[console_scripts]
+memory-mcp = memory_mcp.server:main
+memory-mcp-stats = memory_mcp.server:print_stats

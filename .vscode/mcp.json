@@ -1,0 +1,17 @@
+{
+  "servers": {
+    "memory-mcp-docker": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-v",
+        "c:\\Users\\Adrien Burgess\\Code\\memory-mcp\\memory_data:/data",
+        "-e",
+        "HF_TOKEN=${HF_TOKEN}",
+        "memory-mcp:latest"
+      ]
+    }
+  }
+}

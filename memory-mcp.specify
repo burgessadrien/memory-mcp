@@ -1,0 +1,46 @@
+# Memory MCP Server Specification
+
+## 1. Overview
+The Memory MCP Server is a Model Context Protocol (MCP) server designed to act as a persistent, long-term memory for AI agents. It seamlessly connects to AI assistants to teach them new facts, apply corrections, and manage context across multiple tasks and projects. It runs as a self-contained Docker container backed by a vector database.
+
+## 2. Tech Stack
+- **Language**: Python
+- **Protocol**: Model Context Protocol (MCP) via the official Python SDK
+- **Database**: Embedded Vector Database (e.g., ChromaDB, Qdrant, or LanceDB) capable of local persistence
+- **Embedding Model**: Local sentence-transformers model (e.g., `all-MiniLM-L6-v2`) to keep the memory fast, offline, and private without needing external API keys
+- **Deployment**: Docker container
+
+## 3. Data Model (Memory Record)
+Each "memory" entry within the vector database contains the following schema:
+- **`id`**: Unique identifier (UUID).
+- **`content`**: The actual core text/information of the memory.
+- **`tags`**: List of strings representing topics (allows agents to ask about specific topics and collect grouped memories).
+- **`context`**: String representing the scope (e.g., a specific project name, repository, or "global").
+- **`timestamp`**: ISO 8601 datetime indicating when the memory was added or last updated (vital for determining if a fact is outdated).
+
+## 4. Exposed MCP Tools
+The server exposes the following tools to the AI agents:
+
+### 4.1. Core Memory Management
+- **`add_memory(content: str, tags: list[str] = [], context: str = "global") -> dict`**
+  Persists a new memory. Automatically generates the `id`, creates the vector embedding, sets the `timestamp`, and stores the record.
+- **`search_memory(query: str, tags: list[str] = None, context: str = None, limit: int = 5) -> list[dict]`**
+  Performs semantic vector search. Can be optionally filtered by exact `tags` or `context`. Returns a list of memory records (including their `id`s for future updates).
+- **`update_memory(id: str, content: str = None, tags: list[str] = None, context: str = None) -> dict`**
+  Updates an existing memory by its unique `id` (usually obtained via a prior `search_memory` call). Updates the `timestamp` automatically.
+- **`remove_memory(id: str) -> bool`**
+  Deletes a specific memory from the database using its `id`.
+
+### 4.2. Administration & Bulk Operations
+- **`clear_all_memory(confirmation: bool) -> str`**
+  Wipes the entire vector database entirely. Requires a confirmation flag for safety.
+- **`get_memory_stats() -> dict`**
+  Returns database statistics: total number of memories, list of all unique tags, total distinct contexts, and storage usage.
+- **`export_memories(file_path: str = None) -> str`**
+  Exports the entire memory database into a cleanly formatted Markdown file. This is useful for backups or transferring knowledge to another instance.
+- **`import_memories(prompt_or_content: str) -> dict`**
+  Parses a prompt or formatted markdown text, extracts the structured memories (content, tags, context), and ingests them into the vector database in bulk.
+
+## 5. Storage & Persistence
+- The embedded vector database will store its index and data in a specific local directory (e.g., `/data/vector_db`).
+- The Docker container will expose this path as a volume mount (e.g., `-v ./memory_volume:/data`). This guarantees that memories are stored permanently on the host machine and survive container restarts or image updates.
